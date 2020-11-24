@@ -1,0 +1,9 @@
+version: "2"
+services:
+  blattidus:
+    build: .
+    restart: on-failure
+    volumes:
+      - ./:/usr/src/app/
+    ports:
+        - "5080:5080"
