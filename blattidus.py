@@ -51,6 +51,15 @@ def get_page(path):
 DEFAULT_INDEX = "<script>while(1)alert('I will now be arrested by the Japanese police.')</script>"
 VERSION = "blattidus/1.1.1"
 
+try:
+    with open("cash-money.txt", 'r') as f:
+        CASH_MONEY = f.read().strip()
+except:
+    print("NOTICE: cash-money.txt IS UNAVAILABLE")
+    CASH_MONEY = "poor"
+
+print(CASH_MONEY)
+
 class Response: # Revolutionary OOP
     def __init__(self, page, status=None):
         self.headers = ""
@@ -76,6 +85,7 @@ class Response: # Revolutionary OOP
         self.add_header('Connection', 'close')
         self.add_header('Expires', 'Yesterday')
         self.add_header('Pragma', 'hi-mom')
+        self.add_header('Hotel', 'Trivago')
         self.add_header('X-Powered-By', 'Wage Slavery')
         self.add_header('Hotel', 'Trivago')
         self.add_header('X-Content-Duration', '999999999.666')
@@ -98,13 +108,14 @@ class Response: # Revolutionary OOP
         self.add_header('SSN', '457-55-5462')
         self.add_header('Viscosity', '0.01 poise')
         self.add_header('Favorite-Color', 'orange')
+        self.add_header('Cash-Money', CASH_MONEY)
         self.add_header('Complexity', 'O(log n)')
         self.add_header('Computational-Class', 'push-down-automaton')
         self.add_header('Lifespan', '10-20 years')
         self.add_header('Legacy', 'none')
         self.add_header('Zodiac', 'aries')
         self.add_header('Temperature', '62 C')
-        self.add_header('Knuckles', 'cracked')
+        self.add_header('Knuckles', 'Cracked')
         self.add_header('Shoe-Size', 'confidential')
         self.add_header('Subscribed-Conspiracy-Theories', 'time-cube')
         self.add_header('Dimensions', '4')
