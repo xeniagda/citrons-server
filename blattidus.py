@@ -49,7 +49,7 @@ def get_page(path):
         return None
 
 DEFAULT_INDEX = "<script>while(1)alert('I will now be arrested by the Japanese police.')</script>"
-VERSION = "blattidus/1.1.2"
+VERSION = "blattidus/1.1.2r"
 
 class Response: # Revolutionary OOP
     def __init__(self, page, status=None):
@@ -64,7 +64,7 @@ class Response: # Revolutionary OOP
         self.add_header('Cache-Control', 'exhibitionist, max-age=45')
         self.add_header('Content-Type', 'text/html; charset=PETSCII')
         self.add_header('P3P', 'CP="Privacy is obselete. Any and all data shall be sold to the highest bidder"')
-        self.add_header('Content-Length', len(self.body))
+        self.add_header('Content-Length', len(self.body.encode()))
         self.add_header('Server', VERSION)
         self.add_header('X-XSS-Protection', '0')
         self.add_header('X-Frame-Options', 'plant-evidence')
