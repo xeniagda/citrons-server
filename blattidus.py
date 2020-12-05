@@ -49,7 +49,6 @@ def get_page(path):
         return None
 
 DEFAULT_INDEX = "<script>while(1)alert('I will now be arrested by the Japanese police.')</script>"
-VERSION = "blattidus/1.1.1"
 
 try:
     with open("cash-money.txt", 'r') as f:
@@ -58,7 +57,7 @@ except:
     print("NOTICE: cash-money.txt IS UNAVAILABLE")
     CASH_MONEY = "poor"
 
-print(CASH_MONEY)
+VERSION = "blattidus/1.1.2"
 
 class Response: # Revolutionary OOP
     def __init__(self, page, status=None):
@@ -200,5 +199,11 @@ class Blattidus(socketserver.BaseRequestHandler):
 
         self.perform_response(req_method, req_path, status)
 
+class BlattidusTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
 
-socketserver.TCPServer((HOST, PORT), Blattidus).serve_forever()
+server = BlattidusTCPServer((HOST, PORT), Blattidus)
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+    server.shutdown()
