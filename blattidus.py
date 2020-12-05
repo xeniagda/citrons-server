@@ -16,33 +16,59 @@ as the name is changed.
 
 import socketserver
 import random
-from sys import argv
+from sys import argv,stderr
 
 HOST = ''
 try:
-    PORT = int(argv[2])
+    PORT = int(argv[1])
 except:
     PORT = 80
-try:
-    with open(argv[1],'r') as f:
-        BODY = f.read()
-except:
-    BODY = "<script>while(1)alert('I will now be arrested by the Japanese police')</script>"
+
+main_args = argv[2:]
+if "--log" in main_args:
+    log = True
+else:
+    log = False
+
+files = list(filter("--log".__ne__, main_args))
+
+def get_path(path):
+    if len(path) > 0 and path[0] == '/':
+        path = path[1:]
+    return path
+
+def get_page(path):
+    p = get_path(path)
+    if p in files:
+        try:
+            with open(p,'r') as f:
+                return f.read()
+        except:
+            return None
+    else:
+        return None
+
+DEFAULT_INDEX = "<script>while(1)alert('I will now be arrested by the Japanese police.')</script>"
+VERSION = "blattidus/1.1.2"
 
 class Response: # Revolutionary OOP
-    def __init__(self, body=BODY,status=None):
+    def __init__(self, page, status=None):
         self.headers = ""
-        self.body = body
+
         self.status = "200 Everyone Is Always Asking What the Status Code Is But No One Ever Asks How the Status Code Is Like If You Agree" if status == None else status
-        
+
+        self.body = DEFAULT_INDEX
+        self.get_body(page)
+
         self.add_header('Date', 'Tue, 7 Jan 100 00:58:20 GMT')
         self.add_header('Cache-Control', 'exhibitionist, max-age=45')
         self.add_header('Content-Type', 'text/html; charset=PETSCII')
         self.add_header('P3P', 'CP="Privacy is obselete. Any and all data shall be sold to the highest bidder"')
-        self.add_header('Content-Length', len(body) + 1)
-        self.add_header('Server', 'Blattidus')
+        self.add_header('Content-Length', len(self.body))
+        self.add_header('Server', VERSION)
         self.add_header('X-XSS-Protection', '0')
         self.add_header('X-Frame-Options', 'plant-evidence')
+        self.add_header('Based-on', 'what')
         self.add_header('Set-Cookie', 'bloodtype=to-be-collected')
         self.add_header('Accept-Ranges', 'none')
         self.add_header('Vary', '*')
@@ -51,6 +77,7 @@ class Response: # Revolutionary OOP
         self.add_header('Expires', 'Yesterday')
         self.add_header('Pragma', 'hi-mom')
         self.add_header('X-Powered-By', 'Wage Slavery')
+        self.add_header('Hotel', 'Trivago')
         self.add_header('X-Content-Duration', '999999999.666')
         self.add_header('Flacidity', 'about three')
         self.add_header('Bees', 'many')
@@ -77,6 +104,7 @@ class Response: # Revolutionary OOP
         self.add_header('Legacy', 'none')
         self.add_header('Zodiac', 'aries')
         self.add_header('Temperature', '62 C')
+        self.add_header('Knuckles', 'cracked')
         self.add_header('Shoe-Size', 'confidential')
         self.add_header('Subscribed-Conspiracy-Theories', 'time-cube')
         self.add_header('Dimensions', '4')
@@ -86,16 +114,86 @@ class Response: # Revolutionary OOP
         self.add_header('Price', '$32')
         self.add_header('Step-2', 'cover-yourself-in-oil')
         self.add_header('Taxes', 'evaded')
-        self.add_header('Crimes-Against-Humanity', 4)
+        self.add_header('Crimes-Against-Humanity', 5)
+        self.add_header('Rickroll', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
+        self.add_header('Income', 'around $73,000')
+
+    def get_body(self, page):
+        if self.status.split()[0] != "200":
+            self.error_page()
+            return
+        p = get_page(page)
+        if p == None:
+            if page == "/index.html":
+                self.body = DEFAULT_INDEX
+                return
+            if not get_path(page) in files:
+                self.status = "404 Link Rot"
+                self.error_page()
+            else:
+                self.status = "500 I Am NOT OK"
+                self.error_page()
+        else:
+            self.body = p
+
+    def error_page(self):
+        code = self.status.split()[0]
+        p = get_page(f"{code}.html")
+        if p != None:
+            self.body = p
+            return
+        p = get_page("error.html")
+        if p != None:
+            p = p.replace('BLATTIDUS ERROR', self.status)
+            self.body = p
+            return
+        self.body = f"<h1>{self.status}</h1>"
 
     def add_header(self, header, value):
         self.headers += f"{header}: {value}\n"
 
     def encode(self):
-        return f"HTTP/1.1 {self.status}\n{self.headers}\n\n{self.body}".encode()
+        return f"HTTP/1.1 {self.status}\n{self.headers}\n{self.body}".encode()
 
 class Blattidus(socketserver.BaseRequestHandler):
-    def handle(self):
-        self.request.sendall(Response().encode())
+    def perform_response(self, method, path, status):
+        try:
+            r = Response(path, status=status)
+            self.request.send(r.encode())
+        except Exception as err:
+            if log:
+                stderr.write(f"ERROR ({err}) serving response ({method} {path})\n")
+            self.request.send(Response(path, status="500 I Am NOT OK").encode())
+            return
+        finally:
+            self.request.close()
+        if log:
+            stderr.write(f"{method} {path} -> {r.status}\n")
 
-socketserver.TCPServer((HOST, PORT), Blattidus).serve_forever()
+    def handle(self):
+        try:
+            data = self.request.recv(1024).decode()
+            req_head = data.split('\n')[0].split()
+            req_method = req_head[0]
+            req_path = req_head[1]
+            req_version = req_head[2]
+        except:
+            self.perform_response("GET", "/", "400 Do You Even Know HTTP?")
+            return
+            
+        status = "405 GET Better at HTTP" if req_method != "GET" else None
+        status = "418 I'm a teapot" if req_method == "BREW" or req_method == "WHEN" else None
+        
+        if req_path == "/":
+            req_path = "/index.html"
+
+        self.perform_response(req_method, req_path, status)
+
+class BlattidusTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    allow_reuse_address = True
+
+server = BlattidusTCPServer((HOST, PORT), Blattidus)
+try:
+    server.serve_forever()
+except KeyboardInterrupt:
+    server.shutdown()
