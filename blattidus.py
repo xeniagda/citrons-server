@@ -129,6 +129,9 @@ class Response: # Revolutionary OOP
         self.add_header('Crimes-Against-Humanity', 5)
         self.add_header('Rickroll', 'https://www.youtube.com/watch?v=dQw4w9WgXcQ')
         self.add_header('Income', 'around $73,000')
+        self.add_header('Incorrect-Role-Color', 'light red')
+        self.add_header('Incorrecter-Role-Color', 'pink')
+        self.add_header('Correct-Role-Color', 'light red')
 
     def get_body(self, page):
         if self.status.split()[0] != "200":
